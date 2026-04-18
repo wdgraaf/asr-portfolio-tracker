@@ -1,60 +1,76 @@
 """Stores the user's assets and does basic calculations like total value."""
 
-
-# This will hold the portfolio as a simple list of dicts
-# Example: [{"ticker": "AAPL", "shares": 10, "buy_price": 150.0}, ...]
-portfolio = []
+import json
+from pathlib import Path
 
 
-def add_asset(ticker, shares, buy_price):
-    """Add a new asset to the portfolio."""
-    asset = {
-        "ticker": ticker.upper(),
-        "shares": shares,
-        "buy_price": buy_price,
-    }
-    portfolio.append(asset)
-    return asset
+class Portfolio:
+    DATA_PATH = Path("data/portfolio.json")
 
+    def __init__(self) -> None:
+        self.assets: list[dict] = []
+        self._load()
 
-def remove_asset(ticker):
-    """Remove an asset by ticker name."""
-    global portfolio
-    portfolio = [a for a in portfolio if a["ticker"] != ticker.upper()]
+    def add_asset(
+        self,
+        ticker: str,
+        sector: str,
+        asset_class: str,
+        quantity: float,
+        purchase_price: float,
+    ) -> dict:
+        asset = {
+            "ticker": ticker.upper(),
+            "sector": sector,
+            "asset_class": asset_class,
+            "quantity": quantity,
+            "purchase_price": purchase_price,
+        }
+        self.assets.append(asset)
+        self._save()
+        return asset
 
+    def remove_asset(self, ticker: str) -> None:
+        self.assets = [a for a in self.assets if a["ticker"] != ticker.upper()]
+        self._save()
 
-def get_portfolio():
-    """Return the current portfolio list."""
-    return portfolio
+    def get_assets(self) -> list[dict]:
+        return self.assets
 
+    def calculate_transaction_value(self, asset: dict) -> float:
+        return asset["quantity"] * asset["purchase_price"]
 
-def calculate_total_value(current_prices):
-    """Calculate the total portfolio value using current prices.
+    def calculate_current_value(self, asset: dict, current_price: float) -> float:
+        return asset["quantity"] * current_price
 
-    current_prices is a dict like {"AAPL": 175.0, "MSFT": 400.0}
-    """
-    total = 0.0
-    for asset in portfolio:
-        ticker = asset["ticker"]
-        if ticker in current_prices:
-            total += asset["shares"] * current_prices[ticker]
-    return total
+    def total_portfolio_value(self, current_prices: dict[str, float]) -> float:
+        return sum(
+            self.calculate_current_value(a, current_prices[a["ticker"]])
+            for a in self.assets
+            if a["ticker"] in current_prices
+        )
 
+    def get_weights_by(
+        self, field: str, current_prices: dict[str, float]
+    ) -> dict[str, float]:
+        total = self.total_portfolio_value(current_prices)
+        if total == 0:
+            return {}
+        weights: dict[str, float] = {}
+        for asset in self.assets:
+            if asset["ticker"] not in current_prices:
+                continue
+            key = asset[field]
+            value = self.calculate_current_value(asset, current_prices[asset["ticker"]])
+            weights[key] = weights.get(key, 0.0) + (value / total) * 100
+        return weights
 
-def calculate_profit_loss(current_prices):
-    """Calculate profit/loss for each asset."""
-    results = []
-    for asset in portfolio:
-        ticker = asset["ticker"]
-        if ticker in current_prices:
-            current_value = asset["shares"] * current_prices[ticker]
-            cost = asset["shares"] * asset["buy_price"]
-            profit = current_value - cost
-            results.append({
-                "ticker": ticker,
-                "shares": asset["shares"],
-                "buy_price": asset["buy_price"],
-                "current_price": current_prices[ticker],
-                "profit_loss": profit,
-            })
-    return results
+    def _load(self) -> None:
+        if self.DATA_PATH.exists():
+            with open(self.DATA_PATH) as f:
+                self.assets = json.load(f)
+
+    def _save(self) -> None:
+        self.DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.DATA_PATH, "w") as f:
+            json.dump(self.assets, f, indent=2)
