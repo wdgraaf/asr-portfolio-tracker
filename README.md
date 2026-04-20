@@ -14,7 +14,7 @@ CLI tool for tracking and simulating an investment portfolio.
 ## Installation
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/wdgraaf/asr-portfolio-tracker.git
 cd asr-portfolio-tracker
 
 python3 -m venv .venv
