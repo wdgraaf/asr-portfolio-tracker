@@ -128,7 +128,7 @@ def plot_simulation(results):
         plt.axvline(value, color=color, linestyle="--", linewidth=1.5,
                     label=f"{p}th percentile: ${value:,.0f}")
 
-    plt.title("Monte Carlo Simulation — 15 Year Projection")
+    plt.title("Monte Carlo Simulation: 15 Year Projection")
     plt.xlabel("Portfolio Value ($)")
     plt.ylabel("Frequency")
     plt.legend()
