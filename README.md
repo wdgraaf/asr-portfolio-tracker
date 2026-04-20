@@ -31,9 +31,9 @@ Once started, the CLI shows a menu:
 
 1. **Add asset** — enter ticker, sector, asset class, quantity, and purchase price.
 2. **Remove asset** — remove an asset by ticker.
-3. **View portfolio** — table with current prices, market value, and unrealised P/L.
+3. **View portfolio** — table with current prices, market value, and unrealised P&L.
 4. **View weights** — portfolio weights grouped by asset, sector, or asset class.
-5. **Price history & chart** — plot historical prices for one or more tickers over a chosen period (1mo, 6mo, 1y, 5y).
+5. **Price history & chart** — plot historical prices for one or more tickers over a chosen period (1mo, 3mo, 6mo, 1y, 2y, 5y).
 6. **Run simulation** — 15-year Monte Carlo projection using drift and volatility estimated from 2 years of daily returns.
 0. **Exit**
 
