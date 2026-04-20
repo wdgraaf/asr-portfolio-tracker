@@ -3,6 +3,7 @@
 from rich.console import Console
 from rich.table import Table
 import matplotlib.pyplot as plt
+import numpy as np
 
 console = Console()
 
@@ -119,7 +120,8 @@ def plot_simulation(results):
     final_values = results["final_values"]
     percentiles = results["percentiles"]
 
-    plt.hist(final_values, bins=100, color="skyblue", edgecolor="black", alpha=0.75)
+    bins = np.logspace(np.log10(final_values.min()), np.log10(final_values.max()), 100)
+    plt.hist(final_values, bins=bins, color="skyblue", edgecolor="black", alpha=0.75)
 
     for p, color in [(5, "red"), (50, "black"), (95, "green")]:
         value = percentiles[p]
@@ -130,4 +132,5 @@ def plot_simulation(results):
     plt.xlabel("Portfolio Value ($)")
     plt.ylabel("Frequency")
     plt.legend()
+    plt.xscale("log")
     plt.show()
